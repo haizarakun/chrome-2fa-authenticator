@@ -1,0 +1,2 @@
+# chrome-2fa-authenticator
+Google AuthenticatorのデータをインポートしてChrome上で完全完結・ローカル動作する、プライバシー重視の2FA認証拡張機能。
