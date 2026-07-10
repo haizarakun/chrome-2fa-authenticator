@@ -1,4 +1,3 @@
-[Uploading README.md…]()
 # クローム2段階認証（Chrome 2FA Authenticator）
 
 Google Authenticatorの移行用データ（`otpauth-migration://`）からアカウントを簡単にインポートし、ブラウザ上で安全に2FA（二段階認証）コードを生成・管理・エクスポートできるGoogle Chrome拡張機能です。
