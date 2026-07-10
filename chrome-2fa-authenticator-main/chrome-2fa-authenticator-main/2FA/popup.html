@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 280px; font-family: -apple-system, sans-serif; padding: 12px; margin: 0; background: #fafafa; }
+    .title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 8px; text-align: left; }
+    .account-list { max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+    .account-item { background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px; margin-bottom: 6px; text-align: left; }
+    .account-info { font-size: 11px; color: #5f6368; word-break: break-all; margin-bottom: 2px; }
+    .account-issuer { font-weight: bold; color: #202124; font-size: 12px; }
+    .code { font-size: 24px; font-weight: bold; color: #1a73e8; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+    .timer { font-size: 11px; color: #5f6368; font-weight: bold; }
+    .setup-zone { padding-top: 8px; border-top: 1px solid #dadce0; }
+    input { width: 100%; font-size: 11px; padding: 6px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; margin-bottom: 6px; }
+    button { width: 100%; font-size: 12px; padding: 6px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #1557b0; }
+    
+    .action-row { display: flex; gap: 4px; margin-top: 6px; }
+    .action-btn { flex: 1; font-size: 10px; padding: 4px; border-radius: 4px; cursor: pointer; border: 1px solid #dadce0; background: #f1f3f4; color: #3c4043; text-align: center; font-weight: normal; width: auto; }
+    .action-btn:hover { background: #e8eaed; }
+    .btn-delete { color: #d93025; border-color: #fad2cf; background: #fce8e6; }
+    .btn-delete:hover { background: #fae3e1; }
+    
+    .qr-container { display: none; padding: 10px 0; background: #fff; margin-top: 6px; border-radius: 4px; border: 1px dashed #ccc; }
+    .qr-container canvas, .qr-container img { margin: 0 auto; display: block; }
+  </style>
+</head>
+<body>
+  <div class="title">2FA 認証コード一覧 <span class="timer" id="global-timer">(--s)</span></div>
+  <div class="account-list" id="accountList"></div>
+  <div class="setup-zone">
+    <input type="password" id="secretInput" placeholder="otpauth-migration://... を貼り付け">
+    <button id="saveBtn">データを同期</button>
+  </div>
+  <!-- ローカルQRライブラリを先に読み込む -->
+  <script src="qrcode.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
