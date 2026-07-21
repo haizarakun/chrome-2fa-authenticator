@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root { --accent: #1a73e8; --accent-dark: #1557b0; --bg-page: #fafafa; --bg-card: #ffffff; }
+    body { width: 300px; font-family: -apple-system, sans-serif; padding: 12px; margin: 0; background: var(--bg-page); }
+    .title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .title { font-size: 14px; font-weight: bold; color: #333; }
+    .title-actions { display: flex; align-items: center; gap: 6px; }
+    #accentColor, #bgColor { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; padding: 0; border: 1px solid #dadce0; border-radius: 4px; background: none; cursor: pointer; }
+    #accentColor::-webkit-color-swatch-wrapper, #bgColor::-webkit-color-swatch-wrapper { padding: 0; }
+    #accentColor::-webkit-color-swatch, #bgColor::-webkit-color-swatch { border: none; border-radius: 3px; }
+    .icon-btn { width: auto; padding: 3px 6px; font-size: 12px; background: #f1f3f4; color: #3c4043; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-weight: normal; }
+    .icon-btn:hover { background: #e8eaed; }
+
+    .account-list { max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+    .account-item { background: var(--bg-card); border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px; margin-bottom: 6px; text-align: left; }
+    .account-info { font-size: 11px; color: #5f6368; word-break: break-all; margin-bottom: 2px; }
+    .account-issuer { font-weight: bold; color: #202124; font-size: 12px; }
+    .code { font-size: 24px; font-weight: bold; color: var(--accent); letter-spacing: 1px; font-variant-numeric: tabular-nums; cursor: pointer; user-select: none; }
+    .code:active { opacity: 0.6; }
+    .copy-hint { font-size: 9px; color: #999; margin-top: -4px; margin-bottom: 4px; min-height: 11px; }
+    .copy-hint.show { color: #d93025; }
+    .timer { font-size: 11px; color: #5f6368; font-weight: bold; }
+    .setup-zone { padding-top: 8px; border-top: 1px solid #dadce0; }
+    input { width: 100%; font-size: 11px; padding: 6px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; margin-bottom: 6px; }
+    button { width: 100%; font-size: 12px; padding: 6px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    button:hover { background: var(--accent-dark); }
+
+    .btn-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .btn-row button { margin-bottom: 0; }
+    .btn-secondary { background: #f1f3f4; color: #3c4043; border: 1px solid #dadce0; }
+    .btn-secondary:hover { background: #e8eaed; }
+
+    .action-row { display: flex; gap: 4px; margin-top: 6px; }
+    .action-btn { flex: 1; font-size: 10px; padding: 4px; border-radius: 4px; cursor: pointer; border: 1px solid #dadce0; background: #f1f3f4; color: #3c4043; text-align: center; font-weight: normal; width: auto; }
+    .action-btn:hover { background: #e8eaed; }
+    .btn-delete { color: #d93025; border-color: #fad2cf; background: #fce8e6; }
+    .btn-delete:hover { background: #fae3e1; }
+
+    .qr-container { display: none; padding: 10px 0; background: #fff; margin-top: 6px; border-radius: 4px; border: 1px dashed #ccc; }
+    .qr-container canvas, .qr-container img { margin: 0 auto; display: block; }
+
+    .log-panel { display: none; max-height: 140px; overflow-y: auto; background: #202124; color: #e8eaed; font-size: 10px; font-family: monospace; padding: 6px; border-radius: 4px; margin-top: 8px; white-space: pre-wrap; word-break: break-all; }
+    .log-actions { display: none; gap: 6px; margin-top: 6px; }
+
+    #lockScreen { text-align: center; padding: 10px 0; }
+    .lock-title { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #202124; }
+    .lock-error { font-size: 11px; color: #d93025; min-height: 14px; margin-bottom: 4px; }
+    .lock-note { font-size: 10px; color: #5f6368; line-height: 1.5; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <div id="lockScreen">
+    <div class="lock-title" id="lockTitle">読み込み中...</div>
+    <div class="lock-error" id="lockError"></div>
+    <input type="password" id="pwInput" placeholder="マスターパスワード" autocomplete="off" autofocus>
+    <input type="password" id="pwInput2" placeholder="確認のためもう一度" autocomplete="off" style="display:none;">
+    <button id="unlockBtn">解除</button>
+    <div class="lock-note" id="lockNote"></div>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+    <div class="title-row">
+      <div class="title">2FA 認証コード一覧 <span class="timer" id="global-timer">(--s)</span></div>
+      <div class="title-actions">
+        <input type="color" id="accentColor" title="アクセントカラー">
+        <input type="color" id="bgColor" title="背景カラー">
+        <button class="icon-btn" id="logToggleBtn" title="ログ表示">ログ</button>
+        <button class="icon-btn" id="lockBtn" title="ロックする">🔒</button>
+      </div>
+    </div>
+
+    <div class="account-list" id="accountList"></div>
+
+    <div class="setup-zone">
+      <div class="btn-row">
+        <button id="cameraScanBtn">カメラでQRを読み取る</button>
+      </div>
+      <input type="password" id="secretInput" placeholder="otpauth-migration://... または otpauth://... を貼り付け">
+      <button id="saveBtn">テキストから読み込む</button>
+    </div>
+
+    <div class="log-panel" id="logPanel"></div>
+    <div class="log-actions" id="logActions">
+      <button class="btn-secondary" id="logCopyBtn">ログをコピー</button>
+      <button class="btn-secondary" id="logClearBtn">ログを消去</button>
+    </div>
+  </div>
+
+  <!-- ローカルライブラリを先に読み込む（外部通信なし） -->
+  <script src="crypto-lib.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
